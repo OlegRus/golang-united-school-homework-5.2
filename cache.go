@@ -23,7 +23,7 @@ func (cache *Cache) Get(key string) (string, bool) {
 	if !ok {
 		return "", ok
 	}
-	if v.deadline != nil && (v.deadline.After(currentTime) || v.deadline.Equal(currentTime)) {
+	if v.deadline != nil && currentTime.After(*v.deadline) {
 		delete(cache.storage, key)
 		return "", false
 	}
