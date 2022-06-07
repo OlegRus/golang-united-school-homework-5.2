@@ -38,7 +38,7 @@ func (cache Cache) Keys() []string {
 	currentTime := time.Now()
 	keys := make([]string, 0, len(cache.storage))
 	for k, v := range cache.storage {
-		if (v.deadline != nil && v.deadline.Before(currentTime)) || v.deadline == nil {
+		if (v.deadline != nil && currentTime.Before(*v.deadline)) || v.deadline == nil {
 			keys = append(keys, k)
 		}
 	}
