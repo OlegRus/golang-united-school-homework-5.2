@@ -1,23 +1,45 @@
 package cache
 
-import "time"
+import (
+	"time"
+)
+
+type valueWithDeadline struct {
+	value    string
+	deadline *time.Time
+}
 
 type Cache struct {
+	storage map[string]valueWithDeadline
 }
 
 func NewCache() Cache {
-	return Cache{}
+	return Cache{storage: make(map[string]valueWithDeadline)}
 }
 
-func (receiver) Get(key string) (string, bool) {
-
+func (cache Cache) Get(key string) (string, bool) {
+	v, ok := cache.storage[key]
+	if !ok {
+		return "", ok
+	}
+	if v.deadline != nil && v.deadline.After(time.Now()) {
+		return "", false
+	}
+	return v.value, ok
 }
 
-func (receiver) Put(key, value string) {
+func (cache *Cache) Put(key, value string) {
+	cache.storage[key] = valueWithDeadline{value: value, deadline: nil}
 }
 
-func (receiver) Keys() []string {
+func (cache Cache) Keys() []string {
+	keys := make([]string, 0, len(cache.storage))
+	for k := range cache.storage {
+		keys = append(keys, k)
+	}
+	return keys
 }
 
-func (receiver) PutTill(key, value string, deadline time.Time) {
+func (cache *Cache) PutTill(key, value string, deadline time.Time) {
+	cache.storage[key] = valueWithDeadline{value: value, deadline: &deadline}
 }
